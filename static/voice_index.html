@@ -288,6 +288,29 @@
             color: #bfdbfe;
         }
 
+        /* Word-by-word sync highlighting */
+        .message-content .word {
+            display: inline;
+            transition: all 0.15s ease;
+        }
+
+        .message-content .word.spoken {
+            color: var(--primary-light);
+        }
+
+        .message-content .word.current {
+            color: var(--primary);
+            background: rgba(249, 115, 22, 0.2);
+            border-radius: 3px;
+            padding: 0 2px;
+            margin: 0 -2px;
+        }
+
+        .message.speaking .message-content {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+        }
+
         /* Typing indicator */
         .typing-indicator {
             display: none;
@@ -1047,7 +1070,11 @@
             statusText.textContent = 'Ready';
         }
 
-        // Text-to-Speech
+        // Text-to-Speech with word sync
+        let currentSpeakingMessage = null;
+        let wordElements = [];
+        let currentWordIndex = 0;
+
         function loadVoices() {
             const voices = synthesis.getVoices();
             const preferred = ['Google US English', 'Samantha', 'Daniel', 'Karen'];
@@ -1062,7 +1089,7 @@
             selectedVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
         }
 
-        function speak(text) {
+        function speak(text, messageElement) {
             if (!synthesis) return;
 
             if (isListening) recognition.stop();
@@ -1076,18 +1103,63 @@
             // Activate wave animation for speaking
             waveBars.forEach(bar => bar.classList.add('active'));
 
+            // Store reference to message being spoken
+            currentSpeakingMessage = messageElement;
+            if (currentSpeakingMessage) {
+                currentSpeakingMessage.classList.add('speaking');
+            }
+
             const cleanText = text
                 .replace(/\*\*/g, '')
                 .replace(/\*/g, '')
                 .replace(/#{1,6}\s/g, '')
                 .replace(/`/g, '')
-                .replace(/\n+/g, '. ')
+                .replace(/\n+/g, ' ')
+                .replace(/\s+/g, ' ')
                 .trim();
+
+            // Get word elements for sync
+            if (messageElement) {
+                wordElements = Array.from(messageElement.querySelectorAll('.word'));
+                currentWordIndex = 0;
+            }
 
             const utterance = new SpeechSynthesisUtterance(cleanText);
             utterance.rate = 1.0;
             utterance.pitch = 1.0;
             if (selectedVoice) utterance.voice = selectedVoice;
+
+            // Word boundary event for sync
+            utterance.onboundary = (event) => {
+                if (event.name === 'word' && wordElements.length > 0) {
+                    // Remove current class from previous word
+                    wordElements.forEach((el, idx) => {
+                        if (idx < currentWordIndex) {
+                            el.classList.add('spoken');
+                            el.classList.remove('current');
+                        } else if (idx === currentWordIndex) {
+                            el.classList.add('current');
+                            el.classList.remove('spoken');
+                        } else {
+                            el.classList.remove('current', 'spoken');
+                        }
+                    });
+
+                    // Scroll word into view if needed
+                    if (wordElements[currentWordIndex]) {
+                        const wordEl = wordElements[currentWordIndex];
+                        const container = messagesContainer;
+                        const wordRect = wordEl.getBoundingClientRect();
+                        const containerRect = container.getBoundingClientRect();
+
+                        if (wordRect.bottom > containerRect.bottom - 50) {
+                            container.scrollTop += 50;
+                        }
+                    }
+
+                    currentWordIndex++;
+                }
+            };
 
             utterance.onend = () => finishSpeaking();
             utterance.onerror = () => finishSpeaking();
@@ -1102,6 +1174,21 @@
             statusDot.className = 'status-dot connected';
             statusText.textContent = 'Ready';
 
+            // Mark all words as spoken and clean up
+            if (currentSpeakingMessage) {
+                currentSpeakingMessage.classList.remove('speaking');
+                const words = currentSpeakingMessage.querySelectorAll('.word');
+                words.forEach(w => {
+                    w.classList.add('spoken');
+                    w.classList.remove('current');
+                });
+            }
+
+            // Reset sync state
+            currentSpeakingMessage = null;
+            wordElements = [];
+            currentWordIndex = 0;
+
             if (autoListenEnabled) {
                 setTimeout(() => {
                     if (autoListenEnabled && !isSpeaking) startListening();
@@ -1114,6 +1201,17 @@
             isSpeaking = false;
             micButton.classList.remove('speaking');
             waveBars.forEach(bar => bar.classList.remove('active'));
+
+            // Clean up sync state
+            if (currentSpeakingMessage) {
+                currentSpeakingMessage.classList.remove('speaking');
+                const words = currentSpeakingMessage.querySelectorAll('.word');
+                words.forEach(w => w.classList.remove('current', 'spoken'));
+            }
+            currentSpeakingMessage = null;
+            wordElements = [];
+            currentWordIndex = 0;
+
             stopListening();
             if (autoListenEnabled) toggleAutoListen();
         }
@@ -1152,8 +1250,9 @@
                     }
                     scrollToBottom();
                 } else if (data.type === 'assistant') {
-                    addMessage(data.content, 'assistant');
-                    speak(data.content);
+                    // Add message with word sync enabled, then speak with reference to message
+                    const messageEl = addMessage(data.content, 'assistant', true);
+                    speak(data.content, messageEl);
                 } else if (data.type === 'error') {
                     addMessage(data.content, 'assistant');
                 }
@@ -1168,16 +1267,44 @@
         }
 
         // Messages
-        function formatMessage(text) {
-            return text
+        function formatMessage(text, wrapWords = false) {
+            let formatted = text
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\n\n/g, '</p><p>')
                 .replace(/\n/g, '<br>')
                 .replace(/^- (.*)$/gm, '<li>$1</li>')
                 .replace(/(<li>.*<\/li>)+/g, '<ul>$&</ul>');
+
+            return formatted;
         }
 
-        function addMessage(content, sender) {
+        // Wrap each word in a span for syncing
+        function wrapWordsInSpans(text) {
+            // Clean text for word wrapping
+            const cleanText = text
+                .replace(/\*\*/g, '')
+                .replace(/\*/g, '')
+                .replace(/#{1,6}\s/g, '')
+                .replace(/`/g, '');
+
+            // Split by whitespace but preserve structure
+            const words = cleanText.split(/(\s+)/);
+            let result = '';
+
+            words.forEach(part => {
+                if (part.match(/^\s+$/)) {
+                    // Preserve whitespace
+                    result += part.replace(/\n/g, '<br>');
+                } else if (part.trim()) {
+                    // Wrap word in span
+                    result += `<span class="word">${part}</span>`;
+                }
+            });
+
+            return result;
+        }
+
+        function addMessage(content, sender, enableWordSync = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
 
@@ -1187,12 +1314,20 @@
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
-            contentDiv.innerHTML = `<p>${formatMessage(content)}</p>`;
+
+            if (sender === 'assistant' && enableWordSync) {
+                // Wrap words for sync highlighting
+                contentDiv.innerHTML = `<p>${wrapWordsInSpans(content)}</p>`;
+            } else {
+                contentDiv.innerHTML = `<p>${formatMessage(content)}</p>`;
+            }
 
             messageDiv.appendChild(avatar);
             messageDiv.appendChild(contentDiv);
             messagesContainer.insertBefore(messageDiv, typingIndicator);
             scrollToBottom();
+
+            return messageDiv;
         }
 
         function scrollToBottom() {
