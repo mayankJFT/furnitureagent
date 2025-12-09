@@ -1240,8 +1240,10 @@
         let streamingMessageEl = null;
         let streamingContentEl = null;
         let audioQueue = [];
+        let wordQueue = [];  // Store words to display with audio
         let isPlayingAudio = false;
         let currentAudio = null;
+        let wordDisplayInterval = null;
 
         // WebSocket
         function connect() {
@@ -1271,6 +1273,7 @@
                     streamingMessageEl = createStreamingMessage();
                     streamingContentEl = streamingMessageEl.querySelector('.message-text');
                     audioQueue = [];
+                    wordQueue = [];
                     isSpeaking = true;
                     micButton.classList.add('speaking');
                     statusDot.className = 'status-dot processing';
@@ -1278,39 +1281,28 @@
                     waveBars.forEach(bar => bar.classList.add('active'));
                 }
                 else if (data.type === 'stream_word') {
-                    // Add word to streaming message with highlight
-                    if (streamingContentEl) {
-                        const wordSpan = document.createElement('span');
-                        wordSpan.className = 'word current';
-                        wordSpan.textContent = data.word;
-                        streamingContentEl.appendChild(wordSpan);
-                        scrollToBottom();
-
-                        // Remove highlight after delay
-                        setTimeout(() => {
-                            wordSpan.classList.remove('current');
-                            wordSpan.classList.add('spoken');
-                        }, data.delay || 300);
-                    }
+                    // DON'T display immediately - queue words for sync with audio
+                    wordQueue.push({
+                        word: data.word,
+                        delay: data.delay || 300
+                    });
                 }
                 else if (data.type === 'stream_audio') {
-                    // Queue audio for playback
+                    // Queue audio with its words for synchronized playback
+                    const wordsForThisAudio = wordQueue.splice(0, data.wordCount);
                     audioQueue.push({
                         audio: data.audio,
                         format: data.format,
-                        wordCount: data.wordCount
+                        words: wordsForThisAudio
                     });
-                    playNextAudio();
+                    // Start playing if not already
+                    if (!isPlayingAudio) {
+                        playNextAudioWithWords();
+                    }
                 }
                 else if (data.type === 'stream_end') {
-                    // Streaming complete
-                    if (streamingMessageEl) {
-                        streamingMessageEl.classList.remove('speaking');
-                    }
-                    streamingMessageEl = null;
-                    streamingContentEl = null;
-
-                    // Wait for audio to finish
+                    // Mark streaming as complete - audio will finish on its own
+                    streamingMessageEl?.classList.remove('speaking');
                     checkAudioComplete();
                 }
                 else if (data.type === 'assistant') {
@@ -1354,41 +1346,118 @@
             return messageDiv;
         }
 
-        // Play audio from queue
-        function playNextAudio() {
+        // Play audio and display words synchronized
+        function playNextAudioWithWords() {
             if (isPlayingAudio || audioQueue.length === 0) return;
 
             isPlayingAudio = true;
             const audioData = audioQueue.shift();
+            const words = audioData.words || [];
 
             // Create audio element
             const audio = new Audio(`data:audio/${audioData.format};base64,${audioData.audio}`);
             currentAudio = audio;
 
+            // When audio starts playing, begin showing words
+            audio.onplay = () => {
+                if (words.length > 0 && streamingContentEl) {
+                    displayWordsWithTiming(words, audio.duration * 1000);
+                }
+            };
+
             audio.onended = () => {
                 isPlayingAudio = false;
                 currentAudio = null;
-                playNextAudio();
+                // Clear any remaining word display
+                if (wordDisplayInterval) {
+                    clearInterval(wordDisplayInterval);
+                    wordDisplayInterval = null;
+                }
+                playNextAudioWithWords();
             };
 
             audio.onerror = (e) => {
                 console.error('Audio playback error:', e);
+                // Still show words even if audio fails
+                if (words.length > 0 && streamingContentEl) {
+                    words.forEach(w => displayWord(w.word));
+                }
                 isPlayingAudio = false;
                 currentAudio = null;
-                playNextAudio();
+                playNextAudioWithWords();
             };
 
             audio.play().catch(e => {
                 console.error('Audio play failed:', e);
+                // Still show words even if audio fails
+                if (words.length > 0 && streamingContentEl) {
+                    words.forEach(w => displayWord(w.word));
+                }
                 isPlayingAudio = false;
                 currentAudio = null;
-                playNextAudio();
+                playNextAudioWithWords();
             });
+        }
+
+        // Display words timed to audio duration
+        function displayWordsWithTiming(words, audioDurationMs) {
+            if (words.length === 0) return;
+
+            // Calculate time per word based on actual audio duration
+            const timePerWord = audioDurationMs / words.length;
+            let wordIndex = 0;
+
+            // Display first word immediately
+            displayWord(words[wordIndex].word);
+            wordIndex++;
+
+            // Display remaining words at intervals
+            if (words.length > 1) {
+                wordDisplayInterval = setInterval(() => {
+                    if (wordIndex < words.length && streamingContentEl) {
+                        displayWord(words[wordIndex].word);
+                        wordIndex++;
+                    }
+                    if (wordIndex >= words.length) {
+                        clearInterval(wordDisplayInterval);
+                        wordDisplayInterval = null;
+                    }
+                }, timePerWord);
+            }
+        }
+
+        // Display a single word with highlight effect
+        function displayWord(word) {
+            if (!streamingContentEl) return;
+
+            // Remove 'current' class from previous word
+            const prevWord = streamingContentEl.querySelector('.word.current');
+            if (prevWord) {
+                prevWord.classList.remove('current');
+                prevWord.classList.add('spoken');
+            }
+
+            // Add new word
+            const wordSpan = document.createElement('span');
+            wordSpan.className = 'word current';
+            wordSpan.textContent = word;
+            streamingContentEl.appendChild(wordSpan);
+            scrollToBottom();
         }
 
         // Check if all audio has finished
         function checkAudioComplete() {
             if (audioQueue.length === 0 && !isPlayingAudio) {
+                // Mark all remaining words as spoken
+                if (streamingContentEl) {
+                    const currentWord = streamingContentEl.querySelector('.word.current');
+                    if (currentWord) {
+                        currentWord.classList.remove('current');
+                        currentWord.classList.add('spoken');
+                    }
+                }
+                streamingMessageEl = null;
+                streamingContentEl = null;
                 finishSpeaking();
             } else {
                 setTimeout(checkAudioComplete, 100);
@@ -1398,6 +1467,11 @@
         // Stop all audio
         function stopAllAudio() {
             audioQueue = [];
+            wordQueue = [];
+            if (wordDisplayInterval) {
+                clearInterval(wordDisplayInterval);
+                wordDisplayInterval = null;
+            }
             if (currentAudio) {
                 currentAudio.pause();
                 currentAudio = null;
