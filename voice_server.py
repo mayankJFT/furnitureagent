@@ -1,4 +1,4 @@
-"""Voice-enabled FastAPI server for ProVia Doors sales agent using OpenAI Realtime API."""
+"""Voice-enabled FastAPI server for ProVia Doors sales agent with streaming audio-text sync."""
 
 import asyncio
 import base64
@@ -10,11 +10,15 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from openai import AsyncOpenAI
 
 from agents import Runner
 from provia_agent import provia_agent
 
 load_dotenv()
+
+# Initialize OpenAI client for TTS
+client = AsyncOpenAI()
 
 # Store conversation history per connection
 conversations: dict[str, list] = {}
@@ -31,7 +35,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="ProVia Doors Voice Agent",
-    description="A voice-enabled conversational door sales assistant",
+    description="A voice-enabled conversational door sales assistant with streaming sync",
     lifespan=lifespan,
 )
 
@@ -117,18 +121,15 @@ async def websocket_text_endpoint(websocket: WebSocket):
 
 @app.websocket("/ws/voice")
 async def websocket_voice_endpoint(websocket: WebSocket):
-    """WebSocket endpoint for voice-based interaction using browser speech APIs."""
+    """WebSocket endpoint for voice-based interaction with streaming audio-text sync."""
     await websocket.accept()
     session_id = str(id(websocket))
     conversations[session_id] = []
 
     try:
-        # Send welcome message
-        welcome = {
-            "type": "assistant",
-            "content": "Welcome to ProVia Doors! I'm ready to help you find the perfect door. You can speak to me or type your questions."
-        }
-        await websocket.send_json(welcome)
+        # Send welcome message with streaming
+        welcome = "Welcome to ProVia Doors! I'm ready to help you find the perfect door."
+        await stream_response_with_audio(websocket, welcome)
 
         while True:
             data = await websocket.receive_text()
@@ -164,12 +165,8 @@ async def websocket_voice_endpoint(websocket: WebSocket):
                     "content": response_content
                 })
 
-                # Send response (client will use browser TTS)
-                await websocket.send_json({
-                    "type": "assistant",
-                    "content": response_content,
-                    "speak": True  # Signal client to speak this
-                })
+                # Stream response with synchronized audio
+                await stream_response_with_audio(websocket, response_content)
 
             except Exception as e:
                 await websocket.send_json({
@@ -185,10 +182,88 @@ async def websocket_voice_endpoint(websocket: WebSocket):
         print(f"Voice client {session_id} disconnected")
 
 
+async def stream_response_with_audio(websocket: WebSocket, text: str):
+    """Stream text word-by-word with synchronized TTS audio chunks."""
+
+    # Clean text for TTS
+    clean_text = text.replace("**", "").replace("*", "").replace("#", "").replace("`", "")
+
+    # Signal start of streaming response
+    await websocket.send_json({
+        "type": "stream_start",
+        "content": ""
+    })
+
+    # Split into sentences for better audio chunking
+    import re
+    sentences = re.split(r'(?<=[.!?])\s+', clean_text)
+
+    for sentence in sentences:
+        if not sentence.strip():
+            continue
+
+        # Split sentence into words
+        words = sentence.split()
+
+        try:
+            # Generate TTS audio for this sentence
+            response = await client.audio.speech.create(
+                model="tts-1",
+                voice="alloy",
+                input=sentence,
+                response_format="mp3"
+            )
+
+            # Get audio data
+            audio_data = response.content
+            audio_base64 = base64.b64encode(audio_data).decode('utf-8')
+
+            # Calculate approximate timing per word
+            # Average speaking rate is ~150 words per minute = 400ms per word
+            word_duration_ms = 350
+
+            # Send words with timing info
+            for i, word in enumerate(words):
+                await websocket.send_json({
+                    "type": "stream_word",
+                    "word": word + (" " if i < len(words) - 1 else ""),
+                    "index": i,
+                    "delay": word_duration_ms
+                })
+
+            # Send audio chunk for this sentence
+            await websocket.send_json({
+                "type": "stream_audio",
+                "audio": audio_base64,
+                "format": "mp3",
+                "wordCount": len(words)
+            })
+
+            # Small delay between sentences
+            await asyncio.sleep(0.1)
+
+        except Exception as e:
+            print(f"TTS Error: {e}")
+            # Fallback: just send words without audio
+            for i, word in enumerate(words):
+                await websocket.send_json({
+                    "type": "stream_word",
+                    "word": word + (" " if i < len(words) - 1 else ""),
+                    "index": i,
+                    "delay": 100
+                })
+
+    # Signal end of streaming
+    await websocket.send_json({
+        "type": "stream_end",
+        "fullText": text
+    })
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "agent": "ProViaDoorsSalesAgent", "mode": "voice-enabled"}
+    return {"status": "healthy", "agent": "ProViaDoorsSalesAgent", "mode": "streaming-voice"}
 
 
 @app.get("/api/key-status")
