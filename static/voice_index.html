@@ -4,25 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProVia Doors - AI Voice Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Blue Corporate Theme */
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --primary-light: #93c5fd;
-            --bg-dark: #0a1628;
-            --bg-card: #1a2742;
-            --bg-card-hover: #243752;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border: #2d4a6f;
-            --success: #10b981;
-            --error: #ef4444;
-            --glass: rgba(59, 130, 246, 0.05);
-            --glass-border: rgba(59, 130, 246, 0.15);
-            --accent: #0ea5e9;
+            --primary: #a855f7;
+            --primary-glow: rgba(168, 85, 247, 0.5);
+            --secondary: #06b6d4;
+            --secondary-glow: rgba(6, 182, 212, 0.5);
+            --accent: #f472b6;
+            --bg-dark: #09090b;
+            --bg-card: rgba(24, 24, 27, 0.8);
+            --bg-elevated: rgba(39, 39, 42, 0.6);
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: rgba(63, 63, 70, 0.5);
+            --success: #34d399;
+            --error: #f87171;
         }
 
         * {
@@ -32,78 +30,74 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
             background: var(--bg-dark);
             min-height: 100vh;
             color: var(--text-primary);
             overflow: hidden;
         }
 
-        /* Animated background - Blue Corporate */
-        .bg-gradient {
+        /* Mesh gradient background */
+        .mesh-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background:
-                radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(26, 39, 66, 1) 0%, var(--bg-dark) 100%);
-            z-index: -1;
+                radial-gradient(at 0% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(244, 114, 182, 0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 50%);
+            z-index: -2;
         }
 
-        .floating-orb {
+        /* Animated grid */
+        .grid-bg {
             position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.25;
-            animation: float 25s ease-in-out infinite;
             pointer-events: none;
+            opacity: 0.6;
+            animation: particleFloat 15s infinite ease-in-out;
         }
 
-        .orb-1 {
-            width: 500px;
-            height: 500px;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            top: -150px;
-            left: -150px;
-            animation-delay: 0s;
+        .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 20%; top: 80%; animation-delay: -3s; background: var(--secondary); }
+        .particle:nth-child(3) { left: 60%; top: 40%; animation-delay: -6s; }
+        .particle:nth-child(4) { left: 80%; top: 60%; animation-delay: -9s; background: var(--accent); }
+        .particle:nth-child(5) { left: 90%; top: 10%; animation-delay: -12s; background: var(--secondary); }
+
+        @keyframes particleFloat {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-30px) scale(1.5); opacity: 1; }
         }
 
-        .orb-2 {
-            width: 400px;
-            height: 400px;
-            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-            bottom: -100px;
-            right: -100px;
-            animation-delay: -12s;
-        }
-
-        .orb-3 {
-            width: 250px;
-            height: 250px;
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            top: 50%;
-            right: 10%;
-            animation-delay: -6s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(50px, 50px) scale(1.1); }
-            50% { transform: translate(0, 100px) scale(1); }
-            75% { transform: translate(-50px, 50px) scale(0.9); }
-        }
-
-        /* Main container */
-        .app-container {
-            display: flex;
-            flex-direction: column;
+        /* App layout */
+        .app {
+            display: grid;
+            grid-template-rows: auto 1fr;
             height: 100vh;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 16px;
+            gap: 16px;
         }
 
         /* Header */
@@ -112,54 +106,54 @@
             align-items: center;
             justify-content: space-between;
             padding: 16px 24px;
-            background: var(--glass);
+            background: var(--bg-card);
             backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--border);
             border-radius: 16px;
-            margin-bottom: 20px;
         }
 
-        .logo {
+        .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
-        .logo-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
+            font-size: 22px;
+            box-shadow: 0 0 30px var(--primary-glow);
         }
 
-        .logo-text h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 100%);
+        .brand-text h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
-        .logo-text p {
+        .brand-text span {
             font-size: 0.75rem;
             color: var(--text-muted);
-            margin-top: 2px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
-        .connection-status {
+        .status-badge {
             display: flex;
             align-items: center;
             gap: 8px;
             padding: 8px 16px;
-            background: var(--bg-card);
-            border-radius: 20px;
-            font-size: 0.85rem;
+            background: var(--bg-elevated);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
         }
 
         .status-dot {
@@ -170,92 +164,65 @@
             transition: all 0.3s;
         }
 
-        .status-dot.connected {
-            background: var(--success);
-            box-shadow: 0 0 10px var(--success);
-        }
-
-        .status-dot.listening {
-            background: var(--error);
-            box-shadow: 0 0 10px var(--error);
-            animation: pulse 1s infinite;
-        }
-
-        .status-dot.processing {
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
-            animation: pulse 0.5s infinite;
-        }
+        .status-dot.connected { background: var(--success); box-shadow: 0 0 10px var(--success); }
+        .status-dot.listening { background: var(--error); box-shadow: 0 0 10px var(--error); animation: pulse 1s infinite; }
+        .status-dot.processing { background: var(--primary); box-shadow: 0 0 10px var(--primary); animation: pulse 0.5s infinite; }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.5; }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.4); }
         }
 
-        /* Main content area */
-        .main-content {
-            flex: 1;
-            display: flex;
-            gap: 20px;
+        /* Main content */
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 16px;
             overflow: hidden;
         }
 
-        /* Chat section */
-        .chat-section {
-            flex: 1;
+        /* Chat area */
+        .chat-area {
             display: flex;
             flex-direction: column;
-            background: var(--glass);
+            background: var(--bg-card);
             backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--border);
             border-radius: 20px;
             overflow: hidden;
         }
 
-        .messages-container {
+        .messages {
             flex: 1;
             overflow-y: auto;
             padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            scroll-behavior: smooth;
+            gap: 20px;
         }
 
-        .messages-container::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .messages-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .messages-container::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 3px;
-        }
+        .messages::-webkit-scrollbar { width: 4px; }
+        .messages::-webkit-scrollbar-track { background: transparent; }
+        .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
         .message {
             display: flex;
-            gap: 12px;
-            max-width: 80%;
-            animation: slideIn 0.3s ease;
+            gap: 14px;
+            max-width: 85%;
+            animation: msgIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes msgIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .message.user {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
+        .message.user { align-self: flex-end; flex-direction: row-reverse; }
 
-        .message-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+        .msg-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -263,285 +230,267 @@
             flex-shrink: 0;
         }
 
-        .message.user .message-avatar {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        .message.user .msg-avatar {
+            background: linear-gradient(135deg, var(--secondary) 0%, #0891b2 100%);
         }
 
-        .message.assistant .message-avatar {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        .message.assistant .msg-avatar {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
         }
 
-        .message-content {
+        .msg-bubble {
             padding: 14px 18px;
-            border-radius: 16px;
+            border-radius: 18px;
             line-height: 1.6;
-            font-size: 0.925rem;
+            font-size: 0.9rem;
         }
 
-        .message.user .message-content {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white;
+        .message.user .msg-bubble {
+            background: linear-gradient(135deg, var(--secondary) 0%, #0891b2 100%);
             border-bottom-right-radius: 4px;
         }
 
-        .message.assistant .message-content {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border-bottom-left-radius: 4px;
+        .message.assistant .msg-bubble {
+            background: var(--bg-elevated);
             border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
         }
 
-        .message-content strong {
-            color: var(--primary-light);
-        }
-
-        .message.user .message-content strong {
-            color: #bfdbfe;
-        }
-
-        /* Word-by-word sync highlighting */
-        .message-content .word {
-            display: inline;
-            transition: all 0.15s ease;
-        }
-
-        .message-content .word.spoken {
-            color: var(--primary-light);
-        }
-
-        .message-content .word.current {
-            color: #60a5fa;
-            background: rgba(59, 130, 246, 0.25);
-            border-radius: 3px;
-            padding: 0 2px;
-            margin: 0 -2px;
-        }
-
-        .message.speaking .message-content {
+        .message.speaking .msg-bubble {
             border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        /* Word highlighting */
+        .word {
+            display: inline;
+            transition: all 0.2s ease;
+        }
+
+        .word.current {
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .word.spoken {
+            color: var(--text-secondary);
         }
 
         /* Typing indicator */
-        .typing-indicator {
+        .typing {
             display: none;
-            gap: 4px;
+            gap: 6px;
             padding: 16px 20px;
-            background: var(--bg-card);
-            border-radius: 16px;
-            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+            border-radius: 18px;
             width: fit-content;
         }
 
-        .typing-indicator.active {
-            display: flex;
-        }
+        .typing.active { display: flex; }
 
-        .typing-dot {
+        .typing span {
             width: 8px;
             height: 8px;
             background: var(--primary);
             border-radius: 50%;
-            animation: typing 1.4s infinite ease-in-out;
+            animation: typingBounce 1.4s infinite ease-in-out;
         }
 
-        .typing-dot:nth-child(1) { animation-delay: 0s; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        .typing span:nth-child(1) { animation-delay: 0s; }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
 
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-            30% { transform: translateY(-8px); opacity: 1; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
         }
 
-        /* Voice control panel */
+        /* Voice panel */
         .voice-panel {
-            width: 380px;
             display: flex;
             flex-direction: column;
-            background: var(--glass);
+            background: var(--bg-card);
             backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--border);
             border-radius: 20px;
             padding: 24px;
         }
 
-        .voice-panel-header {
+        .voice-title {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
-        .voice-panel-header h2 {
-            font-size: 1.1rem;
+        .voice-title h2 {
+            font-size: 1rem;
             font-weight: 600;
             margin-bottom: 4px;
         }
 
-        .voice-panel-header p {
-            font-size: 0.85rem;
+        .voice-title p {
+            font-size: 0.8rem;
             color: var(--text-muted);
         }
 
-        /* Voice visualizer - Modern wave animation */
-        .voice-visualizer {
+        /* Voice visualizer */
+        .visualizer {
             position: relative;
-            height: 160px;
+            height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
-        .visualizer-circle {
+        .visualizer canvas {
+            position: absolute;
+            inset: 0;
+        }
+
+        /* Circular rings */
+        .ring {
             position: absolute;
             border-radius: 50%;
             border: 2px solid var(--primary);
             opacity: 0;
-            animation: none;
         }
 
-        .visualizer-circle.active {
-            animation: ripple 2s infinite ease-out;
+        .ring.active {
+            animation: ringPulse 2s infinite ease-out;
         }
 
-        .visualizer-circle:nth-child(1) { animation-delay: 0s; }
-        .visualizer-circle:nth-child(2) { animation-delay: 0.5s; }
-        .visualizer-circle:nth-child(3) { animation-delay: 1s; }
+        .ring:nth-child(1) { animation-delay: 0s; }
+        .ring:nth-child(2) { animation-delay: 0.6s; }
+        .ring:nth-child(3) { animation-delay: 1.2s; }
 
-        @keyframes ripple {
-            0% { width: 80px; height: 80px; opacity: 0.8; }
-            100% { width: 200px; height: 200px; opacity: 0; }
+        @keyframes ringPulse {
+            0% { width: 60px; height: 60px; opacity: 0.8; border-color: var(--primary); }
+            100% { width: 180px; height: 180px; opacity: 0; border-color: var(--secondary); }
         }
 
-        .wave-container {
+        /* Wave bars */
+        .wave-bars {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 3px;
-            height: 80px;
+            gap: 4px;
             z-index: 1;
         }
 
-        .wave-bar {
+        .bar {
             width: 4px;
-            height: 20px;
-            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
-            border-radius: 2px;
+            height: 24px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 4px;
             transition: height 0.05s ease;
         }
 
-        .wave-bar.active {
-            animation: wave 0.5s ease-in-out infinite;
+        .bar.active {
+            animation: barWave 0.6s ease-in-out infinite;
         }
 
-        @keyframes wave {
-            0%, 100% { height: 20px; }
+        @keyframes barWave {
+            0%, 100% { height: 24px; }
             50% { height: 60px; }
         }
 
-        .wave-bar:nth-child(1) { animation-delay: 0.0s; }
-        .wave-bar:nth-child(2) { animation-delay: 0.05s; }
-        .wave-bar:nth-child(3) { animation-delay: 0.1s; }
-        .wave-bar:nth-child(4) { animation-delay: 0.15s; }
-        .wave-bar:nth-child(5) { animation-delay: 0.2s; }
-        .wave-bar:nth-child(6) { animation-delay: 0.25s; }
-        .wave-bar:nth-child(7) { animation-delay: 0.3s; }
-        .wave-bar:nth-child(8) { animation-delay: 0.35s; }
-        .wave-bar:nth-child(9) { animation-delay: 0.4s; }
-        .wave-bar:nth-child(10) { animation-delay: 0.45s; }
-        .wave-bar:nth-child(11) { animation-delay: 0.5s; }
-        .wave-bar:nth-child(12) { animation-delay: 0.45s; }
-        .wave-bar:nth-child(13) { animation-delay: 0.4s; }
-        .wave-bar:nth-child(14) { animation-delay: 0.35s; }
-        .wave-bar:nth-child(15) { animation-delay: 0.3s; }
-        .wave-bar:nth-child(16) { animation-delay: 0.25s; }
-        .wave-bar:nth-child(17) { animation-delay: 0.2s; }
-        .wave-bar:nth-child(18) { animation-delay: 0.15s; }
-        .wave-bar:nth-child(19) { animation-delay: 0.1s; }
-        .wave-bar:nth-child(20) { animation-delay: 0.05s; }
+        /* Stagger bar animations */
+        .bar:nth-child(1), .bar:nth-child(20) { animation-delay: 0.00s; }
+        .bar:nth-child(2), .bar:nth-child(19) { animation-delay: 0.05s; }
+        .bar:nth-child(3), .bar:nth-child(18) { animation-delay: 0.10s; }
+        .bar:nth-child(4), .bar:nth-child(17) { animation-delay: 0.15s; }
+        .bar:nth-child(5), .bar:nth-child(16) { animation-delay: 0.20s; }
+        .bar:nth-child(6), .bar:nth-child(15) { animation-delay: 0.25s; }
+        .bar:nth-child(7), .bar:nth-child(14) { animation-delay: 0.30s; }
+        .bar:nth-child(8), .bar:nth-child(13) { animation-delay: 0.35s; }
+        .bar:nth-child(9), .bar:nth-child(12) { animation-delay: 0.40s; }
+        .bar:nth-child(10), .bar:nth-child(11) { animation-delay: 0.45s; }
 
-        /* Interim transcript */
-        .interim-text {
-            min-height: 24px;
+        /* Interim text */
+        .interim {
+            min-height: 28px;
             text-align: center;
             font-size: 0.9rem;
             color: var(--text-secondary);
             font-style: italic;
-            margin-bottom: 20px;
-            padding: 0 12px;
+            margin-bottom: 24px;
+            padding: 0 16px;
         }
 
-        /* Main mic button */
-        .mic-button-container {
+        /* Mic button */
+        .mic-container {
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
         }
 
-        .mic-button {
+        .mic-btn {
             width: 80px;
             height: 80px;
             border-radius: 50%;
             border: none;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             color: white;
-            font-size: 32px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 30px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 40px var(--primary-glow);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
         }
 
-        .mic-button::before {
+        .mic-btn::before {
             content: '';
             position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+            inset: -4px;
             border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
-        .mic-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 40px rgba(59, 130, 246, 0.5);
+        .mic-btn:hover::before { opacity: 0.5; }
+
+        .mic-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 60px var(--primary-glow);
         }
 
-        .mic-button:active {
-            transform: scale(0.98);
+        .mic-btn.listening {
+            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            box-shadow: 0 0 40px rgba(239, 68, 68, 0.5);
+            animation: micPulse 1.5s infinite;
         }
 
-        .mic-button.listening {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            box-shadow: 0 4px 30px rgba(239, 68, 68, 0.5);
-            animation: mic-pulse 1.5s infinite;
+        .mic-btn.speaking {
+            background: linear-gradient(135deg, var(--secondary) 0%, #0891b2 100%);
+            box-shadow: 0 0 40px var(--secondary-glow);
         }
 
-        .mic-button.speaking {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            box-shadow: 0 4px 30px rgba(59, 130, 246, 0.5);
+        @keyframes micPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+            50% { box-shadow: 0 0 0 25px rgba(239, 68, 68, 0); }
         }
 
-        @keyframes mic-pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-            50% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+        .mic-btn svg {
+            width: 32px;
+            height: 32px;
         }
 
-        /* Control buttons */
-        .control-buttons {
+        /* Controls */
+        .controls {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .control-btn {
-            padding: 10px 20px;
+        .ctrl-btn {
+            padding: 10px 18px;
+            background: var(--bg-elevated);
             border: 1px solid var(--border);
             border-radius: 10px;
-            background: var(--bg-card);
             color: var(--text-secondary);
             font-size: 0.85rem;
             cursor: pointer;
@@ -551,35 +500,24 @@
             gap: 6px;
         }
 
-        .control-btn:hover {
-            background: var(--bg-card-hover);
+        .ctrl-btn:hover {
+            background: var(--border);
             color: var(--text-primary);
         }
 
-        .control-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: white;
-        }
-
         /* Auto-listen toggle */
-        .auto-listen-container {
+        .auto-listen {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            padding: 16px;
-            background: var(--bg-card);
+            padding: 14px;
+            background: var(--bg-elevated);
             border-radius: 12px;
             margin-bottom: 20px;
         }
 
-        .toggle-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .toggle-switch {
+        .toggle {
             width: 48px;
             height: 26px;
             background: var(--border);
@@ -589,11 +527,9 @@
             transition: background 0.3s;
         }
 
-        .toggle-switch.active {
-            background: var(--success);
-        }
+        .toggle.on { background: var(--primary); }
 
-        .toggle-switch::after {
+        .toggle::after {
             content: '';
             position: absolute;
             width: 20px;
@@ -602,50 +538,55 @@
             border-radius: 50%;
             top: 3px;
             left: 3px;
-            transition: transform 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .toggle-switch.active::after {
-            transform: translateX(22px);
+        .toggle.on::after { transform: translateX(22px); }
+
+        .toggle-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
 
         /* Input area */
-        .input-container {
+        .input-area {
             margin-top: auto;
         }
 
-        .input-wrapper {
+        .input-box {
             display: flex;
             gap: 10px;
-            background: var(--bg-card);
-            border-radius: 14px;
-            padding: 6px;
+            padding: 8px;
+            background: var(--bg-elevated);
             border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: border-color 0.2s;
         }
 
-        .text-input {
+        .input-box:focus-within {
+            border-color: var(--primary);
+        }
+
+        .input-box input {
             flex: 1;
             background: transparent;
             border: none;
-            padding: 12px 16px;
+            padding: 10px 14px;
             color: var(--text-primary);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             outline: none;
+            font-family: inherit;
         }
 
-        .text-input::placeholder {
-            color: var(--text-muted);
-        }
+        .input-box input::placeholder { color: var(--text-muted); }
 
         .send-btn {
             width: 44px;
             height: 44px;
-            border-radius: 10px;
+            border-radius: 12px;
             border: none;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             color: white;
-            font-size: 18px;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -653,163 +594,142 @@
             justify-content: center;
         }
 
-        .send-btn:hover {
-            transform: scale(1.05);
-        }
+        .send-btn:hover { transform: scale(1.05); }
 
         /* Quick actions */
-        .quick-actions {
+        .quick-btns {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-top: 16px;
+            margin-top: 14px;
             justify-content: center;
         }
 
-        .quick-action {
+        .quick-btn {
             padding: 8px 14px;
-            background: var(--bg-card);
+            background: transparent;
             border: 1px solid var(--border);
-            border-radius: 20px;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
+            border-radius: 100px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
             cursor: pointer;
             transition: all 0.2s;
         }
 
-        .quick-action:hover {
-            background: var(--bg-card-hover);
-            color: var(--text-primary);
+        .quick-btn:hover {
             border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(168, 85, 247, 0.1);
         }
 
         /* Responsive */
         @media (max-width: 900px) {
-            .main-content {
-                flex-direction: column;
+            .main {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
             }
 
             .voice-panel {
-                width: 100%;
                 order: -1;
                 padding: 16px;
             }
 
-            .voice-visualizer {
-                height: 120px;
-            }
-
-            .app-container {
-                padding: 12px;
-            }
-        }
-
-        /* Canvas for dynamic visualization */
-        #audioCanvas {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
+            .visualizer { height: 120px; }
+            .app { padding: 10px; }
         }
     </style>
 </head>
 <body>
-    <div class="bg-gradient"></div>
-    <div class="floating-orb orb-1"></div>
-    <div class="floating-orb orb-2"></div>
-    <div class="floating-orb orb-3"></div>
+    <div class="mesh-bg"></div>
+    <div class="grid-bg"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
 
-    <div class="app-container">
+    <div class="app">
         <header class="header">
-            <div class="logo">
-                <div class="logo-icon">🚪</div>
-                <div class="logo-text">
+            <div class="brand">
+                <div class="brand-icon">🚪</div>
+                <div class="brand-text">
                     <h1>ProVia Doors</h1>
-                    <p>AI Voice Assistant</p>
+                    <span>AI Assistant</span>
                 </div>
             </div>
-            <div class="connection-status">
+            <div class="status-badge">
                 <div class="status-dot" id="statusDot"></div>
                 <span id="statusText">Connecting...</span>
             </div>
         </header>
 
-        <main class="main-content">
-            <section class="chat-section">
-                <div class="messages-container" id="messagesContainer">
-                    <div class="typing-indicator" id="typingIndicator">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
+        <main class="main">
+            <section class="chat-area">
+                <div class="messages" id="messages">
+                    <div class="typing" id="typing">
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </div>
                 </div>
             </section>
 
             <aside class="voice-panel">
-                <div class="voice-panel-header">
+                <div class="voice-title">
                     <h2>Voice Control</h2>
-                    <p>Tap the mic or enable auto-listen</p>
+                    <p>Tap to speak or enable auto-listen</p>
                 </div>
 
-                <div class="voice-visualizer" id="voiceVisualizer">
-                    <canvas id="audioCanvas"></canvas>
-                    <div class="visualizer-circle"></div>
-                    <div class="visualizer-circle"></div>
-                    <div class="visualizer-circle"></div>
-                    <div class="wave-container" id="waveContainer">
-                        <!-- Wave bars generated by JS -->
-                    </div>
+                <div class="visualizer" id="visualizer">
+                    <canvas id="canvas"></canvas>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="wave-bars" id="waveBars"></div>
                 </div>
 
-                <div class="interim-text" id="interimText"></div>
+                <div class="interim" id="interim"></div>
 
-                <div class="mic-button-container">
-                    <button class="mic-button" id="micButton" title="Click to speak">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                            <line x1="12" y1="19" x2="12" y2="23"></line>
-                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                <div class="mic-container">
+                    <button class="mic-btn" id="micBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="23"/>
+                            <line x1="8" y1="23" x2="16" y2="23"/>
                         </svg>
                     </button>
                 </div>
 
-                <div class="control-buttons">
-                    <button class="control-btn" id="stopBtn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+                <div class="controls">
+                    <button class="ctrl-btn" id="stopBtn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="6" width="12" height="12" rx="2"/>
                         </svg>
                         Stop
                     </button>
                 </div>
 
-                <div class="auto-listen-container">
-                    <span class="toggle-label">Auto-Listen Mode</span>
-                    <div class="toggle-switch" id="autoListenToggle"></div>
+                <div class="auto-listen">
+                    <span class="toggle-label">Auto-Listen</span>
+                    <div class="toggle" id="autoToggle"></div>
                 </div>
 
-                <div class="input-container">
-                    <div class="input-wrapper">
-                        <input
-                            type="text"
-                            class="text-input"
-                            id="textInput"
-                            placeholder="Type your message..."
-                            autocomplete="off"
-                        >
+                <div class="input-area">
+                    <div class="input-box">
+                        <input type="text" id="textInput" placeholder="Type a message..." autocomplete="off">
                         <button class="send-btn" id="sendBtn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"/>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
                             </svg>
                         </button>
                     </div>
-
-                    <div class="quick-actions">
-                        <button class="quick-action" data-message="Tell me about entry doors">Entry Doors</button>
-                        <button class="quick-action" data-message="What storm doors do you have?">Storm Doors</button>
-                        <button class="quick-action" data-message="Show me glass options">Glass Options</button>
-                        <button class="quick-action" data-message="Hardware selection">Hardware</button>
+                    <div class="quick-btns">
+                        <button class="quick-btn" data-msg="Tell me about entry doors">Entry Doors</button>
+                        <button class="quick-btn" data-msg="What storm doors do you have?">Storm Doors</button>
+                        <button class="quick-btn" data-msg="Show me glass options">Glass Options</button>
+                        <button class="quick-btn" data-msg="Hardware selection">Hardware</button>
                     </div>
                 </div>
             </aside>
@@ -817,220 +737,176 @@
     </div>
 
     <script>
-        // DOM Elements
-        const messagesContainer = document.getElementById('messagesContainer');
-        const typingIndicator = document.getElementById('typingIndicator');
+        // Elements
+        const messages = document.getElementById('messages');
+        const typing = document.getElementById('typing');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
-        const micButton = document.getElementById('micButton');
+        const micBtn = document.getElementById('micBtn');
         const stopBtn = document.getElementById('stopBtn');
-        const autoListenToggle = document.getElementById('autoListenToggle');
+        const autoToggle = document.getElementById('autoToggle');
         const textInput = document.getElementById('textInput');
         const sendBtn = document.getElementById('sendBtn');
-        const quickActions = document.querySelectorAll('.quick-action');
-        const interimText = document.getElementById('interimText');
-        const waveContainer = document.getElementById('waveContainer');
-        const voiceVisualizer = document.getElementById('voiceVisualizer');
-        const audioCanvas = document.getElementById('audioCanvas');
-        const visualizerCircles = document.querySelectorAll('.visualizer-circle');
+        const quickBtns = document.querySelectorAll('.quick-btn');
+        const interim = document.getElementById('interim');
+        const waveBarsContainer = document.getElementById('waveBars');
+        const visualizer = document.getElementById('visualizer');
+        const canvas = document.getElementById('canvas');
+        const rings = document.querySelectorAll('.ring');
 
         // Create wave bars
-        const NUM_BARS = 20;
-        for (let i = 0; i < NUM_BARS; i++) {
+        for (let i = 0; i < 20; i++) {
             const bar = document.createElement('div');
-            bar.className = 'wave-bar';
-            waveContainer.appendChild(bar);
+            bar.className = 'bar';
+            waveBarsContainer.appendChild(bar);
         }
-        const waveBars = document.querySelectorAll('.wave-bar');
+        const bars = document.querySelectorAll('.bar');
 
         // State
         let ws = null;
-        let isConnected = false;
+        let connected = false;
         let recognition = null;
         let synthesis = window.speechSynthesis;
-        let isListening = false;
-        let isSpeaking = false;
-        let autoListenEnabled = false;
-        let audioContext = null;
+        let listening = false;
+        let speaking = false;
+        let autoListen = false;
+        let audioCtx = null;
         let analyser = null;
-        let microphone = null;
-        let animationId = null;
-        let selectedVoice = null;
+        let animId = null;
         let canvasCtx = null;
 
-        // Initialize canvas
+        // Streaming state
+        let streamingEl = null;
+        let streamingText = null;
+        let audioQueue = [];
+        let wordQueue = [];
+        let playingAudio = false;
+        let currentAudio = null;
+        let wordInterval = null;
+
+        // Init canvas
         function initCanvas() {
-            const rect = audioCanvas.parentElement.getBoundingClientRect();
-            audioCanvas.width = rect.width;
-            audioCanvas.height = rect.height;
-            canvasCtx = audioCanvas.getContext('2d');
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            canvasCtx = canvas.getContext('2d');
         }
 
-        // Initialize Audio Context
-        async function initAudioContext() {
+        // Audio context
+        async function initAudio() {
             try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
                 analyser.fftSize = 256;
                 analyser.smoothingTimeConstant = 0.8;
 
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                microphone = audioContext.createMediaStreamSource(stream);
-                microphone.connect(analyser);
-
+                const mic = audioCtx.createMediaStreamSource(stream);
+                mic.connect(analyser);
                 initCanvas();
                 return true;
             } catch (e) {
-                console.error('Audio context error:', e);
+                console.error('Audio init error:', e);
                 return false;
             }
         }
 
-        // Visualize audio with canvas
-        function visualizeAudio() {
-            if (!analyser || !isListening) {
-                waveBars.forEach(bar => bar.style.height = '20px');
-                if (canvasCtx) {
-                    canvasCtx.clearRect(0, 0, audioCanvas.width, audioCanvas.height);
-                }
+        // Visualize
+        function visualize() {
+            if (!analyser || !listening) {
+                bars.forEach(b => b.style.height = '24px');
+                if (canvasCtx) canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
                 return;
             }
 
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            analyser.getByteFrequencyData(dataArray);
+            const data = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(data);
 
-            // Update wave bars
-            const barsCount = waveBars.length;
-            const step = Math.floor(bufferLength / barsCount);
-
-            waveBars.forEach((bar, i) => {
-                const index = i * step;
-                const value = dataArray[index];
-                const height = Math.max(20, (value / 255) * 60);
-                bar.style.height = `${height}px`;
-                // Blue corporate gradient
-                bar.style.background = `linear-gradient(180deg,
-                    hsl(${210 + (value / 255) * 10}, 90%, ${55 + (value / 255) * 15}%) 0%,
-                    hsl(${220}, 85%, 45%) 100%)`;
+            // Update bars
+            const step = Math.floor(data.length / bars.length);
+            bars.forEach((bar, i) => {
+                const val = data[i * step];
+                const h = Math.max(24, (val / 255) * 60);
+                bar.style.height = `${h}px`;
             });
 
-            // Draw canvas visualization
+            // Canvas glow
             if (canvasCtx) {
-                const width = audioCanvas.width;
-                const height = audioCanvas.height;
-                const centerX = width / 2;
-                const centerY = height / 2;
+                const w = canvas.width, h = canvas.height;
+                const cx = w / 2, cy = h / 2;
+                canvasCtx.clearRect(0, 0, w, h);
 
-                canvasCtx.clearRect(0, 0, width, height);
+                const avg = data.reduce((a, b) => a + b, 0) / data.length;
+                const r = 35 + (avg / 255) * 25;
 
-                // Draw circular visualization
-                const avgVolume = dataArray.reduce((a, b) => a + b, 0) / bufferLength;
-                const radius = 40 + (avgVolume / 255) * 30;
-
-                // Blue glow effect
-                const gradient = canvasCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-                gradient.addColorStop(0, `rgba(59, 130, 246, ${0.3 + (avgVolume / 255) * 0.3})`);
-                gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+                const grad = canvasCtx.createRadialGradient(cx, cy, 0, cx, cy, r);
+                grad.addColorStop(0, `rgba(168, 85, 247, ${0.4 + (avg / 255) * 0.3})`);
+                grad.addColorStop(1, 'rgba(168, 85, 247, 0)');
 
                 canvasCtx.beginPath();
-                canvasCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-                canvasCtx.fillStyle = gradient;
+                canvasCtx.arc(cx, cy, r, 0, Math.PI * 2);
+                canvasCtx.fillStyle = grad;
                 canvasCtx.fill();
-
-                // Frequency arcs - blue theme
-                for (let i = 0; i < 32; i++) {
-                    const value = dataArray[i * 4] / 255;
-                    const angle = (i / 32) * Math.PI * 2 - Math.PI / 2;
-                    const innerRadius = 45;
-                    const outerRadius = innerRadius + value * 25;
-
-                    canvasCtx.beginPath();
-                    canvasCtx.arc(centerX, centerY, innerRadius, angle - 0.08, angle + 0.08);
-                    canvasCtx.arc(centerX, centerY, outerRadius, angle + 0.08, angle - 0.08, true);
-                    canvasCtx.closePath();
-                    canvasCtx.fillStyle = `rgba(59, 130, 246, ${0.3 + value * 0.7})`;
-                    canvasCtx.fill();
-                }
             }
 
-            animationId = requestAnimationFrame(visualizeAudio);
+            animId = requestAnimationFrame(visualize);
         }
 
-        // Speech Recognition
-        function initSpeechRecognition() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                console.error('Speech recognition not supported');
-                micButton.disabled = true;
+        // Speech recognition
+        function initRecognition() {
+            if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                micBtn.disabled = true;
                 return false;
             }
 
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SR();
             recognition.continuous = true;
             recognition.interimResults = true;
             recognition.lang = 'en-US';
 
             recognition.onstart = () => {
-                isListening = true;
-                micButton.classList.add('listening');
+                listening = true;
+                micBtn.classList.add('listening');
                 statusDot.className = 'status-dot listening';
                 statusText.textContent = 'Listening...';
-                visualizerCircles.forEach(c => c.classList.add('active'));
-                visualizeAudio();
+                rings.forEach(r => r.classList.add('active'));
+                bars.forEach(b => b.classList.add('active'));
+                visualize();
             };
 
-            recognition.onresult = (event) => {
-                let interim = '';
-                let final = '';
-
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const transcript = event.results[i][0].transcript;
-                    if (event.results[i].isFinal) {
-                        final += transcript;
-                    } else {
-                        interim += transcript;
-                    }
+            recognition.onresult = (e) => {
+                let interimResult = '', finalResult = '';
+                for (let i = e.resultIndex; i < e.results.length; i++) {
+                    const t = e.results[i][0].transcript;
+                    if (e.results[i].isFinal) finalResult += t;
+                    else interimResult += t;
                 }
-
-                interimText.textContent = interim;
-
-                if (final.trim()) {
-                    interimText.textContent = '';
-                    sendMessage(final.trim());
+                interim.textContent = interimResult;
+                if (finalResult.trim()) {
+                    interim.textContent = '';
+                    send(finalResult.trim());
                 }
             };
 
-            recognition.onerror = (event) => {
-                if (event.error !== 'no-speech' && event.error !== 'aborted') {
-                    console.error('Speech error:', event.error);
+            recognition.onerror = (e) => {
+                if (e.error !== 'no-speech' && e.error !== 'aborted') {
+                    console.error('Speech error:', e.error);
                 }
             };
 
             recognition.onend = () => {
-                isListening = false;
-                micButton.classList.remove('listening');
-                visualizerCircles.forEach(c => c.classList.remove('active'));
+                listening = false;
+                micBtn.classList.remove('listening');
+                rings.forEach(r => r.classList.remove('active'));
+                bars.forEach(b => b.classList.remove('active'));
+                if (animId) { cancelAnimationFrame(animId); animId = null; }
+                bars.forEach(b => b.style.height = '24px');
+                if (canvasCtx) canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
-                if (animationId) {
-                    cancelAnimationFrame(animationId);
-                    animationId = null;
-                }
-
-                waveBars.forEach(bar => {
-                    bar.style.height = '20px';
-                    bar.style.background = 'linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%)';
-                });
-
-                if (canvasCtx) {
-                    canvasCtx.clearRect(0, 0, audioCanvas.width, audioCanvas.height);
-                }
-
-                if (autoListenEnabled && !isSpeaking) {
+                if (autoListen && !speaking) {
                     setTimeout(() => {
-                        if (autoListenEnabled && !isSpeaking && !isListening) {
-                            startListening();
-                        }
+                        if (autoListen && !speaking && !listening) startListen();
                     }, 500);
                 } else {
                     statusDot.className = 'status-dot connected';
@@ -1041,573 +917,251 @@
             return true;
         }
 
-        function startListening() {
-            if (isSpeaking) {
-                synthesis.cancel();
-                isSpeaking = false;
-            }
-
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-
-            if (recognition && !isListening) {
-                try {
-                    recognition.start();
-                } catch (e) {
-                    console.error('Start error:', e);
-                }
+        function startListen() {
+            if (speaking) { synthesis.cancel(); speaking = false; }
+            if (audioCtx?.state === 'suspended') audioCtx.resume();
+            if (recognition && !listening) {
+                try { recognition.start(); } catch (e) {}
             }
         }
 
-        function stopListening() {
-            isListening = false;
-            micButton.classList.remove('listening');
-            visualizerCircles.forEach(c => c.classList.remove('active'));
-
-            if (recognition) {
-                try { recognition.stop(); } catch (e) {}
-            }
-
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-                animationId = null;
-            }
-
-            waveBars.forEach(bar => {
-                bar.style.height = '20px';
-                bar.style.background = 'linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%)';
-            });
-
+        function stopListen() {
+            listening = false;
+            micBtn.classList.remove('listening');
+            rings.forEach(r => r.classList.remove('active'));
+            bars.forEach(b => b.classList.remove('active'));
+            if (recognition) try { recognition.stop(); } catch (e) {}
+            if (animId) { cancelAnimationFrame(animId); animId = null; }
+            bars.forEach(b => b.style.height = '24px');
             statusDot.className = 'status-dot connected';
             statusText.textContent = 'Ready';
         }
 
-        // Text-to-Speech with word sync
-        let currentSpeakingMessage = null;
-        let wordElements = [];
-        let currentWordIndex = 0;
+        function finishSpeak() {
+            speaking = false;
+            micBtn.classList.remove('speaking');
+            bars.forEach(b => b.classList.remove('active'));
+            statusDot.className = 'status-dot connected';
+            statusText.textContent = 'Ready';
 
-        function loadVoices() {
-            const voices = synthesis.getVoices();
-            const preferred = ['Google US English', 'Samantha', 'Daniel', 'Karen'];
-
-            for (const name of preferred) {
-                const found = voices.find(v => v.name.includes(name));
-                if (found) {
-                    selectedVoice = found;
-                    return;
-                }
+            if (autoListen) {
+                setTimeout(() => { if (autoListen && !speaking) startListen(); }, 800);
             }
-            selectedVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
         }
 
-        function speak(text, messageElement) {
-            if (!synthesis) return;
-
-            if (isListening) recognition.stop();
-
+        function stopSpeak() {
             synthesis.cancel();
-            isSpeaking = true;
-            micButton.classList.add('speaking');
-            statusDot.className = 'status-dot processing';
-            statusText.textContent = 'Speaking...';
+            stopAllAudio();
+            speaking = false;
+            micBtn.classList.remove('speaking');
+            bars.forEach(b => b.classList.remove('active'));
+            if (streamingEl) streamingEl.classList.remove('speaking');
+            streamingEl = null;
+            streamingText = null;
+            stopListen();
+            if (autoListen) toggleAuto();
+        }
 
-            // Activate wave animation for speaking
-            waveBars.forEach(bar => bar.classList.add('active'));
+        function toggleAuto() {
+            autoListen = !autoListen;
+            autoToggle.classList.toggle('on', autoListen);
+            if (autoListen && !listening && !speaking) startListen();
+            else if (!autoListen) stopListen();
+        }
 
-            // Store reference to message being spoken
-            currentSpeakingMessage = messageElement;
-            if (currentSpeakingMessage) {
-                currentSpeakingMessage.classList.add('speaking');
-            }
+        // Streaming audio
+        function stopAllAudio() {
+            audioQueue = [];
+            wordQueue = [];
+            if (wordInterval) { clearInterval(wordInterval); wordInterval = null; }
+            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+            playingAudio = false;
+        }
 
-            const cleanText = text
-                .replace(/\*\*/g, '')
-                .replace(/\*/g, '')
-                .replace(/#{1,6}\s/g, '')
-                .replace(/`/g, '')
-                .replace(/\n+/g, ' ')
-                .replace(/\s+/g, ' ')
-                .trim();
+        function playNextAudio() {
+            if (playingAudio || audioQueue.length === 0) return;
+            playingAudio = true;
+            const data = audioQueue.shift();
+            const words = data.words || [];
 
-            // Get word elements for sync
-            if (messageElement) {
-                wordElements = Array.from(messageElement.querySelectorAll('.word'));
-                currentWordIndex = 0;
-            }
+            const audio = new Audio(`data:audio/${data.format};base64,${data.audio}`);
+            currentAudio = audio;
 
-            const utterance = new SpeechSynthesisUtterance(cleanText);
-            utterance.rate = 1.0;
-            utterance.pitch = 1.0;
-            if (selectedVoice) utterance.voice = selectedVoice;
-
-            // Word boundary event for sync
-            utterance.onboundary = (event) => {
-                if (event.name === 'word' && wordElements.length > 0) {
-                    // Remove current class from previous word
-                    wordElements.forEach((el, idx) => {
-                        if (idx < currentWordIndex) {
-                            el.classList.add('spoken');
-                            el.classList.remove('current');
-                        } else if (idx === currentWordIndex) {
-                            el.classList.add('current');
-                            el.classList.remove('spoken');
-                        } else {
-                            el.classList.remove('current', 'spoken');
-                        }
-                    });
-
-                    // Scroll word into view if needed
-                    if (wordElements[currentWordIndex]) {
-                        const wordEl = wordElements[currentWordIndex];
-                        const container = messagesContainer;
-                        const wordRect = wordEl.getBoundingClientRect();
-                        const containerRect = container.getBoundingClientRect();
-
-                        if (wordRect.bottom > containerRect.bottom - 50) {
-                            container.scrollTop += 50;
-                        }
-                    }
-
-                    currentWordIndex++;
+            audio.onplay = () => {
+                if (words.length > 0 && streamingText) {
+                    displayWords(words, audio.duration * 1000);
                 }
             };
 
-            utterance.onend = () => finishSpeaking();
-            utterance.onerror = () => finishSpeaking();
+            audio.onended = () => {
+                playingAudio = false;
+                currentAudio = null;
+                if (wordInterval) { clearInterval(wordInterval); wordInterval = null; }
+                playNextAudio();
+            };
 
-            synthesis.speak(utterance);
+            audio.onerror = () => {
+                if (words.length > 0 && streamingText) words.forEach(w => showWord(w.word));
+                playingAudio = false;
+                currentAudio = null;
+                playNextAudio();
+            };
+
+            audio.play().catch(() => {
+                if (words.length > 0 && streamingText) words.forEach(w => showWord(w.word));
+                playingAudio = false;
+                currentAudio = null;
+                playNextAudio();
+            });
         }
 
-        function finishSpeaking() {
-            isSpeaking = false;
-            micButton.classList.remove('speaking');
-            waveBars.forEach(bar => bar.classList.remove('active'));
-            statusDot.className = 'status-dot connected';
-            statusText.textContent = 'Ready';
-
-            // Mark all words as spoken and clean up
-            if (currentSpeakingMessage) {
-                currentSpeakingMessage.classList.remove('speaking');
-                const words = currentSpeakingMessage.querySelectorAll('.word');
-                words.forEach(w => {
-                    w.classList.add('spoken');
-                    w.classList.remove('current');
-                });
-            }
-
-            // Reset sync state
-            currentSpeakingMessage = null;
-            wordElements = [];
-            currentWordIndex = 0;
-
-            if (autoListenEnabled) {
-                setTimeout(() => {
-                    if (autoListenEnabled && !isSpeaking) startListening();
-                }, 800);
-            }
-        }
-
-        function stopSpeaking() {
-            synthesis.cancel();
-            stopAllAudio();
-            isSpeaking = false;
-            micButton.classList.remove('speaking');
-            waveBars.forEach(bar => bar.classList.remove('active'));
-
-            // Clean up sync state
-            if (currentSpeakingMessage) {
-                currentSpeakingMessage.classList.remove('speaking');
-                const words = currentSpeakingMessage.querySelectorAll('.word');
-                words.forEach(w => w.classList.remove('current', 'spoken'));
-            }
-            currentSpeakingMessage = null;
-            wordElements = [];
-            currentWordIndex = 0;
-
-            // Clean up streaming state
-            if (streamingMessageEl) {
-                streamingMessageEl.classList.remove('speaking');
-            }
-            streamingMessageEl = null;
-            streamingContentEl = null;
-
-            stopListening();
-            if (autoListenEnabled) toggleAutoListen();
-        }
-
-        // Auto-listen toggle
-        function toggleAutoListen() {
-            autoListenEnabled = !autoListenEnabled;
-            autoListenToggle.classList.toggle('active', autoListenEnabled);
-
-            if (autoListenEnabled && !isListening && !isSpeaking) {
-                startListening();
-            } else if (!autoListenEnabled) {
-                stopListening();
+        function displayWords(words, duration) {
+            if (words.length === 0) return;
+            const perWord = duration / words.length;
+            let idx = 0;
+            showWord(words[idx++].word);
+            if (words.length > 1) {
+                wordInterval = setInterval(() => {
+                    if (idx < words.length && streamingText) {
+                        showWord(words[idx++].word);
+                    }
+                    if (idx >= words.length) { clearInterval(wordInterval); wordInterval = null; }
+                }, perWord);
             }
         }
 
-        // Streaming state
-        let streamingMessageEl = null;
-        let streamingContentEl = null;
-        let audioQueue = [];
-        let wordQueue = [];  // Store words to display with audio
-        let isPlayingAudio = false;
-        let currentAudio = null;
-        let wordDisplayInterval = null;
+        function showWord(word) {
+            if (!streamingText) return;
+            const prev = streamingText.querySelector('.word.current');
+            if (prev) { prev.classList.remove('current'); prev.classList.add('spoken'); }
+            const span = document.createElement('span');
+            span.className = 'word current';
+            span.textContent = word;
+            streamingText.appendChild(span);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function checkAudioDone() {
+            if (audioQueue.length === 0 && !playingAudio) {
+                if (streamingText) {
+                    const cur = streamingText.querySelector('.word.current');
+                    if (cur) { cur.classList.remove('current'); cur.classList.add('spoken'); }
+                }
+                streamingEl = null;
+                streamingText = null;
+                finishSpeak();
+            } else {
+                setTimeout(checkAudioDone, 100);
+            }
+        }
 
         // WebSocket
         function connect() {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            ws = new WebSocket(`${protocol}//${window.location.host}/ws/voice`);
+            const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${proto}//${location.host}/ws/voice`);
 
             ws.onopen = () => {
-                isConnected = true;
+                connected = true;
                 statusDot.className = 'status-dot connected';
                 statusText.textContent = 'Connected';
             };
 
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
+            ws.onmessage = (e) => {
+                const d = JSON.parse(e.data);
 
-                if (data.type === 'processing') {
-                    typingIndicator.classList.toggle('active', data.content);
-                    if (data.content) {
+                if (d.type === 'processing') {
+                    typing.classList.toggle('active', d.content);
+                    if (d.content) {
                         statusDot.className = 'status-dot processing';
                         statusText.textContent = 'Thinking...';
                     }
-                    scrollToBottom();
+                    messages.scrollTop = messages.scrollHeight;
                 }
-                // Handle streaming messages
-                else if (data.type === 'stream_start') {
-                    // Create new message element for streaming
-                    streamingMessageEl = createStreamingMessage();
-                    streamingContentEl = streamingMessageEl.querySelector('.message-text');
+                else if (d.type === 'stream_start') {
+                    streamingEl = createStreamMsg();
+                    streamingText = streamingEl.querySelector('.msg-text');
                     audioQueue = [];
                     wordQueue = [];
-                    isSpeaking = true;
-                    micButton.classList.add('speaking');
+                    speaking = true;
+                    micBtn.classList.add('speaking');
                     statusDot.className = 'status-dot processing';
                     statusText.textContent = 'Speaking...';
-                    waveBars.forEach(bar => bar.classList.add('active'));
+                    bars.forEach(b => b.classList.add('active'));
                 }
-                else if (data.type === 'stream_word') {
-                    // DON'T display immediately - queue words for sync with audio
-                    wordQueue.push({
-                        word: data.word,
-                        delay: data.delay || 300
-                    });
+                else if (d.type === 'stream_word') {
+                    wordQueue.push({ word: d.word, delay: d.delay || 300 });
                 }
-                else if (data.type === 'stream_audio') {
-                    // Queue audio with its words for synchronized playback
-                    const wordsForThisAudio = wordQueue.splice(0, data.wordCount);
-                    audioQueue.push({
-                        audio: data.audio,
-                        format: data.format,
-                        words: wordsForThisAudio
-                    });
-                    // Start playing if not already
-                    if (!isPlayingAudio) {
-                        playNextAudioWithWords();
-                    }
+                else if (d.type === 'stream_audio') {
+                    const wordsForAudio = wordQueue.splice(0, d.wordCount);
+                    audioQueue.push({ audio: d.audio, format: d.format, words: wordsForAudio });
+                    if (!playingAudio) playNextAudio();
                 }
-                else if (data.type === 'stream_end') {
-                    // Mark streaming as complete - audio will finish on its own
-                    streamingMessageEl?.classList.remove('speaking');
-                    checkAudioComplete();
+                else if (d.type === 'stream_end') {
+                    streamingEl?.classList.remove('speaking');
+                    checkAudioDone();
                 }
-                else if (data.type === 'assistant') {
-                    // Fallback for non-streaming responses
-                    const messageEl = addMessage(data.content, 'assistant', true);
-                    speak(data.content, messageEl);
+                else if (d.type === 'assistant') {
+                    addMsg(d.content, 'assistant');
                 }
-                else if (data.type === 'error') {
-                    addMessage(data.content, 'assistant');
+                else if (d.type === 'error') {
+                    addMsg(d.content, 'assistant');
                 }
             };
 
             ws.onclose = () => {
-                isConnected = false;
+                connected = false;
                 statusDot.className = 'status-dot';
                 statusText.textContent = 'Reconnecting...';
                 setTimeout(connect, 3000);
             };
         }
 
-        // Create streaming message element
-        function createStreamingMessage() {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message assistant speaking';
-
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar';
-            avatar.textContent = '🚪';
-
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-
-            const textP = document.createElement('p');
-            textP.className = 'message-text';
-
-            contentDiv.appendChild(textP);
-            messageDiv.appendChild(avatar);
-            messageDiv.appendChild(contentDiv);
-            messagesContainer.insertBefore(messageDiv, typingIndicator);
-
-            return messageDiv;
+        function createStreamMsg() {
+            const div = document.createElement('div');
+            div.className = 'message assistant speaking';
+            div.innerHTML = `
+                <div class="msg-avatar">🚪</div>
+                <div class="msg-bubble"><p class="msg-text"></p></div>
+            `;
+            messages.insertBefore(div, typing);
+            return div;
         }
 
-        // Play audio and display words synchronized
-        function playNextAudioWithWords() {
-            if (isPlayingAudio || audioQueue.length === 0) return;
-
-            isPlayingAudio = true;
-            const audioData = audioQueue.shift();
-            const words = audioData.words || [];
-
-            // Create audio element
-            const audio = new Audio(`data:audio/${audioData.format};base64,${audioData.audio}`);
-            currentAudio = audio;
-
-            // When audio starts playing, begin showing words
-            audio.onplay = () => {
-                if (words.length > 0 && streamingContentEl) {
-                    displayWordsWithTiming(words, audio.duration * 1000);
-                }
-            };
-
-            audio.onended = () => {
-                isPlayingAudio = false;
-                currentAudio = null;
-                // Clear any remaining word display
-                if (wordDisplayInterval) {
-                    clearInterval(wordDisplayInterval);
-                    wordDisplayInterval = null;
-                }
-                playNextAudioWithWords();
-            };
-
-            audio.onerror = (e) => {
-                console.error('Audio playback error:', e);
-                // Still show words even if audio fails
-                if (words.length > 0 && streamingContentEl) {
-                    words.forEach(w => displayWord(w.word));
-                }
-                isPlayingAudio = false;
-                currentAudio = null;
-                playNextAudioWithWords();
-            };
-
-            audio.play().catch(e => {
-                console.error('Audio play failed:', e);
-                // Still show words even if audio fails
-                if (words.length > 0 && streamingContentEl) {
-                    words.forEach(w => displayWord(w.word));
-                }
-                isPlayingAudio = false;
-                currentAudio = null;
-                playNextAudioWithWords();
-            });
+        function addMsg(text, sender) {
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            div.innerHTML = `
+                <div class="msg-avatar">${sender === 'user' ? '👤' : '🚪'}</div>
+                <div class="msg-bubble">${text}</div>
+            `;
+            messages.insertBefore(div, typing);
+            messages.scrollTop = messages.scrollHeight;
         }
 
-        // Display words timed to audio duration
-        function displayWordsWithTiming(words, audioDurationMs) {
-            if (words.length === 0) return;
-
-            // Calculate time per word based on actual audio duration
-            const timePerWord = audioDurationMs / words.length;
-            let wordIndex = 0;
-
-            // Display first word immediately
-            displayWord(words[wordIndex].word);
-            wordIndex++;
-
-            // Display remaining words at intervals
-            if (words.length > 1) {
-                wordDisplayInterval = setInterval(() => {
-                    if (wordIndex < words.length && streamingContentEl) {
-                        displayWord(words[wordIndex].word);
-                        wordIndex++;
-                    }
-                    if (wordIndex >= words.length) {
-                        clearInterval(wordDisplayInterval);
-                        wordDisplayInterval = null;
-                    }
-                }, timePerWord);
-            }
-        }
-
-        // Display a single word with highlight effect
-        function displayWord(word) {
-            if (!streamingContentEl) return;
-
-            // Remove 'current' class from previous word
-            const prevWord = streamingContentEl.querySelector('.word.current');
-            if (prevWord) {
-                prevWord.classList.remove('current');
-                prevWord.classList.add('spoken');
-            }
-
-            // Add new word
-            const wordSpan = document.createElement('span');
-            wordSpan.className = 'word current';
-            wordSpan.textContent = word;
-            streamingContentEl.appendChild(wordSpan);
-            scrollToBottom();
-        }
-
-        // Check if all audio has finished
-        function checkAudioComplete() {
-            if (audioQueue.length === 0 && !isPlayingAudio) {
-                // Mark all remaining words as spoken
-                if (streamingContentEl) {
-                    const currentWord = streamingContentEl.querySelector('.word.current');
-                    if (currentWord) {
-                        currentWord.classList.remove('current');
-                        currentWord.classList.add('spoken');
-                    }
-                }
-                streamingMessageEl = null;
-                streamingContentEl = null;
-                finishSpeaking();
-            } else {
-                setTimeout(checkAudioComplete, 100);
-            }
-        }
-
-        // Stop all audio
-        function stopAllAudio() {
-            audioQueue = [];
-            wordQueue = [];
-            if (wordDisplayInterval) {
-                clearInterval(wordDisplayInterval);
-                wordDisplayInterval = null;
-            }
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio = null;
-            }
-            isPlayingAudio = false;
-        }
-
-        // Messages
-        function formatMessage(text, wrapWords = false) {
-            let formatted = text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n\n/g, '</p><p>')
-                .replace(/\n/g, '<br>')
-                .replace(/^- (.*)$/gm, '<li>$1</li>')
-                .replace(/(<li>.*<\/li>)+/g, '<ul>$&</ul>');
-
-            return formatted;
-        }
-
-        // Wrap each word in a span for syncing
-        function wrapWordsInSpans(text) {
-            // Clean text for word wrapping
-            const cleanText = text
-                .replace(/\*\*/g, '')
-                .replace(/\*/g, '')
-                .replace(/#{1,6}\s/g, '')
-                .replace(/`/g, '');
-
-            // Split by whitespace but preserve structure
-            const words = cleanText.split(/(\s+)/);
-            let result = '';
-
-            words.forEach(part => {
-                if (part.match(/^\s+$/)) {
-                    // Preserve whitespace
-                    result += part.replace(/\n/g, '<br>');
-                } else if (part.trim()) {
-                    // Wrap word in span
-                    result += `<span class="word">${part}</span>`;
-                }
-            });
-
-            return result;
-        }
-
-        function addMessage(content, sender, enableWordSync = false) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
-
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar';
-            avatar.textContent = sender === 'user' ? '👤' : '🚪';
-
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-
-            if (sender === 'assistant' && enableWordSync) {
-                // Wrap words for sync highlighting
-                contentDiv.innerHTML = `<p>${wrapWordsInSpans(content)}</p>`;
-            } else {
-                contentDiv.innerHTML = `<p>${formatMessage(content)}</p>`;
-            }
-
-            messageDiv.appendChild(avatar);
-            messageDiv.appendChild(contentDiv);
-            messagesContainer.insertBefore(messageDiv, typingIndicator);
-            scrollToBottom();
-
-            return messageDiv;
-        }
-
-        function scrollToBottom() {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        function sendMessage(message) {
-            if (!message.trim() || !isConnected) return;
-            addMessage(message, 'user');
-            ws.send(JSON.stringify({ type: 'text', content: message }));
+        function send(msg) {
+            if (!msg.trim() || !connected) return;
+            addMsg(msg, 'user');
+            ws.send(JSON.stringify({ type: 'text', content: msg }));
             textInput.value = '';
-            interimText.textContent = '';
+            interim.textContent = '';
         }
 
-        // Event listeners
-        micButton.addEventListener('click', () => {
-            if (isListening) {
-                stopListening();
-                if (autoListenEnabled) toggleAutoListen();
-            } else {
-                startListening();
-            }
-        });
+        // Events
+        micBtn.onclick = () => {
+            if (listening) { stopListen(); if (autoListen) toggleAuto(); }
+            else startListen();
+        };
 
-        stopBtn.addEventListener('click', stopSpeaking);
-        autoListenToggle.addEventListener('click', toggleAutoListen);
+        stopBtn.onclick = stopSpeak;
+        autoToggle.onclick = toggleAuto;
+        sendBtn.onclick = () => send(textInput.value);
+        textInput.onkeypress = (e) => { if (e.key === 'Enter') send(textInput.value); };
+        quickBtns.forEach(b => b.onclick = () => send(b.dataset.msg));
+        window.onresize = () => { if (canvas) initCanvas(); };
 
-        sendBtn.addEventListener('click', () => sendMessage(textInput.value));
-        textInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage(textInput.value);
-        });
-
-        quickActions.forEach(btn => {
-            btn.addEventListener('click', () => {
-                sendMessage(btn.getAttribute('data-message'));
-            });
-        });
-
-        // Handle resize
-        window.addEventListener('resize', () => {
-            if (audioCanvas) initCanvas();
-        });
-
-        // Initialize
+        // Init
         async function init() {
-            if (synthesis) {
-                loadVoices();
-                synthesis.onvoiceschanged = loadVoices;
-            }
-
-            if (initSpeechRecognition()) {
-                await initAudioContext();
-            }
-
+            if (initRecognition()) await initAudio();
             connect();
         }
 
