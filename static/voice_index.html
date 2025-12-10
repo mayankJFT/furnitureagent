@@ -7,20 +7,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #f97316;
-            --primary-dark: #ea580c;
-            --primary-light: #fdba74;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-card-hover: #334155;
-            --text-primary: #f8fafc;
+            /* Blue Corporate Theme */
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #93c5fd;
+            --bg-dark: #0a1628;
+            --bg-card: #1a2742;
+            --bg-card-hover: #243752;
+            --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
-            --border: #334155;
-            --success: #22c55e;
+            --border: #2d4a6f;
+            --success: #10b981;
             --error: #ef4444;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(59, 130, 246, 0.05);
+            --glass-border: rgba(59, 130, 246, 0.15);
+            --accent: #0ea5e9;
         }
 
         * {
@@ -37,7 +39,7 @@
             overflow: hidden;
         }
 
-        /* Animated background */
+        /* Animated background - Blue Corporate */
         .bg-gradient {
             position: fixed;
             top: 0;
@@ -45,37 +47,46 @@
             right: 0;
             bottom: 0;
             background:
-                radial-gradient(ellipse at 20% 20%, rgba(249, 115, 22, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(249, 115, 22, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(30, 41, 59, 1) 0%, var(--bg-dark) 100%);
+                radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(26, 39, 66, 1) 0%, var(--bg-dark) 100%);
             z-index: -1;
         }
 
         .floating-orb {
             position: fixed;
             border-radius: 50%;
-            filter: blur(60px);
-            opacity: 0.3;
-            animation: float 20s ease-in-out infinite;
+            filter: blur(80px);
+            opacity: 0.25;
+            animation: float 25s ease-in-out infinite;
             pointer-events: none;
         }
 
         .orb-1 {
-            width: 400px;
-            height: 400px;
-            background: var(--primary);
-            top: -100px;
-            left: -100px;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            top: -150px;
+            left: -150px;
             animation-delay: 0s;
         }
 
         .orb-2 {
-            width: 300px;
-            height: 300px;
-            background: #3b82f6;
-            bottom: -50px;
-            right: -50px;
-            animation-delay: -10s;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -12s;
+        }
+
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            top: 50%;
+            right: 10%;
+            animation-delay: -6s;
         }
 
         @keyframes float {
@@ -299,8 +310,8 @@
         }
 
         .message-content .word.current {
-            color: var(--primary);
-            background: rgba(249, 115, 22, 0.2);
+            color: #60a5fa;
+            background: rgba(59, 130, 246, 0.25);
             border-radius: 3px;
             padding: 0 2px;
             margin: 0 -2px;
@@ -308,7 +319,7 @@
 
         .message.speaking .message-content {
             border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
         }
 
         /* Typing indicator */
@@ -477,7 +488,7 @@
             font-size: 32px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 30px rgba(249, 115, 22, 0.4);
+            box-shadow: 0 4px 30px rgba(59, 130, 246, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -495,7 +506,7 @@
 
         .mic-button:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 40px rgba(249, 115, 22, 0.5);
+            box-shadow: 0 6px 40px rgba(59, 130, 246, 0.5);
         }
 
         .mic-button:active {
@@ -706,6 +717,7 @@
     <div class="bg-gradient"></div>
     <div class="floating-orb orb-1"></div>
     <div class="floating-orb orb-2"></div>
+    <div class="floating-orb orb-3"></div>
 
     <div class="app-container">
         <header class="header">
@@ -897,9 +909,10 @@
                 const value = dataArray[index];
                 const height = Math.max(20, (value / 255) * 60);
                 bar.style.height = `${height}px`;
+                // Blue corporate gradient
                 bar.style.background = `linear-gradient(180deg,
-                    hsl(${25 + (value / 255) * 20}, 95%, ${50 + (value / 255) * 10}%) 0%,
-                    hsl(${20}, 90%, 45%) 100%)`;
+                    hsl(${210 + (value / 255) * 10}, 90%, ${55 + (value / 255) * 15}%) 0%,
+                    hsl(${220}, 85%, 45%) 100%)`;
             });
 
             // Draw canvas visualization
@@ -915,17 +928,17 @@
                 const avgVolume = dataArray.reduce((a, b) => a + b, 0) / bufferLength;
                 const radius = 40 + (avgVolume / 255) * 30;
 
-                // Glow effect
+                // Blue glow effect
                 const gradient = canvasCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-                gradient.addColorStop(0, `rgba(249, 115, 22, ${0.3 + (avgVolume / 255) * 0.3})`);
-                gradient.addColorStop(1, 'rgba(249, 115, 22, 0)');
+                gradient.addColorStop(0, `rgba(59, 130, 246, ${0.3 + (avgVolume / 255) * 0.3})`);
+                gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
 
                 canvasCtx.beginPath();
                 canvasCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
                 canvasCtx.fillStyle = gradient;
                 canvasCtx.fill();
 
-                // Frequency arcs
+                // Frequency arcs - blue theme
                 for (let i = 0; i < 32; i++) {
                     const value = dataArray[i * 4] / 255;
                     const angle = (i / 32) * Math.PI * 2 - Math.PI / 2;
@@ -936,7 +949,7 @@
                     canvasCtx.arc(centerX, centerY, innerRadius, angle - 0.08, angle + 0.08);
                     canvasCtx.arc(centerX, centerY, outerRadius, angle + 0.08, angle - 0.08, true);
                     canvasCtx.closePath();
-                    canvasCtx.fillStyle = `rgba(249, 115, 22, ${0.3 + value * 0.7})`;
+                    canvasCtx.fillStyle = `rgba(59, 130, 246, ${0.3 + value * 0.7})`;
                     canvasCtx.fill();
                 }
             }
